@@ -5,9 +5,7 @@ import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 
 class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
@@ -37,15 +35,24 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
         optionThreeTv.setOnClickListener(this)
         optionFourTv.setOnClickListener(this)
 
-
+        var submitBtn = findViewById<Button>(R.id.btn_submit)
+        submitBtn.setOnClickListener(this)
 
     }
 
     private fun setQuestion() {
-        mCurrentPosition = 1
         var question = mQuestionsList!![mCurrentPosition-1]
 
+        var submitBtn = findViewById<Button>(R.id.btn_submit)
+
         defaultOptionsView()
+
+        if(mCurrentPosition == mQuestionsList!!.size) {
+            submitBtn.text = "FINISH"
+        }
+        else {
+            submitBtn.text = "SUBMIT"
+        }
 
         var progress = findViewById<ProgressBar>(R.id.progressBar)
         progress.progress = mCurrentPosition
@@ -105,11 +112,70 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
 
         var optionFourTv = findViewById<TextView>(R.id.tv_option_four)
 
+        var submitBtn = findViewById<Button>(R.id.btn_submit)
+
         when(v?.id) {
             R.id.tv_option_one -> selectedOptionView(optionOneTv, 1)
-            R.id.tv_option_two -> selectedOptionView(optionTwoTv, 1)
-            R.id.tv_option_three -> selectedOptionView(optionThreeTv, 1)
-            R.id.tv_option_four -> selectedOptionView(optionFourTv, 1)
+            R.id.tv_option_two -> selectedOptionView(optionTwoTv, 2)
+            R.id.tv_option_three -> selectedOptionView(optionThreeTv, 3)
+            R.id.tv_option_four -> selectedOptionView(optionFourTv, 4)
+            R.id.btn_submit -> {
+                if (mSelectedOptionPosition == 0) {
+                    mCurrentPosition++
+
+                    when {
+                        mCurrentPosition <= mQuestionsList!!.size -> {
+                            setQuestion()
+                        }
+                        else -> {
+                            Toast.makeText(this, "You have successfully completed the quiz", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                else {
+                    val question = mQuestionsList!!.get(mCurrentPosition-1)
+                    if(question.correctAns != mSelectedOptionPosition) {
+                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    }
+                    answerView(question.correctAns, R.drawable.correct_option_border_bg)
+
+                    if(mCurrentPosition == mQuestionsList!!.size) {
+                        submitBtn.text = "FINISH"
+                    }
+                    else {
+                        submitBtn.text = "GO TO NEXT QUESTION"
+                    }
+                    mSelectedOptionPosition = 0
+                }
+            }
+        }
+    }
+
+    private fun answerView(answer: Int, drawableView: Int) {
+
+        var optionOneTv = findViewById<TextView>(R.id.tv_option_one)
+
+        var optionTwoTv = findViewById<TextView>(R.id.tv_option_two)
+
+        var optionThreeTv = findViewById<TextView>(R.id.tv_option_three)
+
+        var optionFourTv = findViewById<TextView>(R.id.tv_option_four)
+
+        when(answer) {
+            1-> {
+                optionOneTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+            2-> {
+                optionTwoTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+            3-> {
+                optionThreeTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+            4-> {
+                optionFourTv.background = ContextCompat.getDrawable(this, drawableView)
+            }
+
+
         }
     }
 
